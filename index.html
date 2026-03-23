@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veg Profit Tracker Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen p-4">
+
+<div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-4">
+
+  <!-- LEFT SIDE -->
+  <div>
+    <h1 class="text-2xl font-bold mb-4 text-center">🥦 Veg Profit Tracker Pro</h1>
+
+    <!-- INPUT -->
+    <div class="bg-gray-800 p-4 rounded-2xl">
+      <input id="name" class="w-full p-2 rounded text-black mb-2" placeholder="Vegetable Name">
+
+      <input id="buy" type="number" class="w-full p-2 rounded text-black mb-2" placeholder="Buying Price ₹/kg">
+
+      <input id="sell" type="number" class="w-full p-2 rounded text-black mb-2" placeholder="Selling Price ₹/kg">
+
+      <input id="qty" type="number" class="w-full p-2 rounded text-black mb-3" placeholder="Quantity (kg)">
+
+      <button onclick="addEntry()" class="w-full bg-green-500 hover:bg-green-600 p-2 rounded-xl font-bold">
+        ➕ Add Entry (Auto Calculate)
+      </button>
+    </div>
+
+    <!-- TOTALS -->
+    <div class="bg-gray-800 p-4 mt-4 rounded-2xl">
+      <h2 class="text-lg font-bold">📊 Totals</h2>
+      <p>💰 Total Spent: ₹<span id="totalSpent">0</span></p>
+      <p>📈 Total Profit: ₹<span id="totalProfit">0</span></p>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="bg-gray-800 p-4 mt-4 rounded-2xl">
+      <h2 class="text-lg font-bold mb-2">🧾 Entries</h2>
+      <div id="history" class="text-sm space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="bg-gray-800 p-4 rounded-2xl">
+    <h2 class="text-xl font-bold mb-3">📊 Mandi Bulk Prices (Approx)</h2>
+    <ul class="space-y-2 text-sm">
+      <li>🥔 Potato: ₹20–₹30/kg</li>
+      <li>🧅 Onion: ₹25–₹40/kg</li>
+      <li>🍅 Tomato: ₹15–₹35/kg</li>
+      <li>🌶️ Green Chilli: ₹40–₹80/kg</li>
+      <li>🌿 Coriander: ₹80–₹150/kg</li>
+      <li>🍋 Lemon: ₹60–₹120/kg</li>
+      <li>🧄 Garlic: ₹120–₹200/kg</li>
+    </ul>
+
+    <p class="text-xs mt-4 text-gray-400">
+      ⚠️ Prices change daily. Check your local mandi.
+    </p>
+  </div>
+
+</div>
+
+<script>
+let entries = JSON.parse(localStorage.getItem("vegEntries")) || [];
+
+function saveData() {
+  localStorage.setItem("vegEntries", JSON.stringify(entries));
+}
+
+function updateTotals() {
+  let totalSpent = 0;
+  let totalProfit = 0;
+
+  entries.forEach(e => {
+    totalSpent += e.spent;
+    totalProfit += e.profit;
+  });
+
+  document.getElementById('totalSpent').innerText = totalSpent;
+  document.getElementById('totalProfit').innerText = totalProfit;
+}
+
+function renderEntries() {
+  let history = document.getElementById('history');
+  history.innerHTML = "";
+
+  entries.forEach((e, index) => {
+    let div = document.createElement('div');
+    div.className = "bg-gray-700 p-2 rounded flex justify-between items-center";
+
+    div.innerHTML = `
+      <div>
+        📦 <b>${e.name}</b> (${e.qty}kg)<br>
+        💸 ₹${e.buy}/kg → ₹${e.sell}/kg<br>
+        💰 Spent: ₹${e.spent} | 📈 Profit: ₹${e.profit}
+      </div>
+      <button onclick="deleteEntry(${index})"
+        class="bg-red-500 px-2 py-1 rounded text-xs">
+        ❌
+      </button>
+    `;
+
+    history.appendChild(div);
+  });
+}
+
+function addEntry() {
+  let name = document.getElementById('name').value;
+  let buy = parseFloat(document.getElementById('buy').value);
+  let sell = parseFloat(document.getElementById('sell').value);
+  let qty = parseFloat(document.getElementById('qty').value);
+
+  if (!name || isNaN(buy) || isNaN(sell) || isNaN(qty)) {
+    alert("⚠️ Please fill all fields");
+    return;
+  }
+
+  let spent = buy * qty;
+  let revenue = sell * qty;
+  let profit = revenue - spent;
+
+  entries.push({ name, buy, sell, qty, spent, profit });
+
+  saveData();
+  renderEntries();
+  updateTotals();
+
+  // Clear inputs
+  document.getElementById('name').value = "";
+  document.getElementById('buy').value = "";
+  document.getElementById('sell').value = "";
+  document.getElementById('qty').value = "";
+}
+
+function deleteEntry(index) {
+  entries.splice(index, 1);
+  saveData();
+  renderEntries();
+  updateTotals();
+}
+
+// INITIAL LOAD
+renderEntries();
+updateTotals();
+</script>
+
+</body>
+  </html>
