@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veg Profit Tracker Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen p-4">
+
+<div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-4">
+
+  <!-- LEFT SIDE -->
+  <div>
+    <h1 class="text-2xl font-bold mb-4 text-center">🥦 Veg Profit Tracker Pro</h1>
+
+    <div class="bg-gray-800 p-4 rounded-2xl">
+      <input id="name" class="w-full p-2 rounded text-black mb-2" placeholder="Vegetable Name">
+
+      <input id="buy" type="number" class="w-full p-2 rounded text-black mb-2" placeholder="Buying Price ₹/kg">
+
+      <input id="sell" type="number" class="w-full p-2 rounded text-black mb-2" placeholder="Selling Price ₹/kg">
+
+      <input id="qty" type="number" class="w-full p-2 rounded text-black mb-3" placeholder="Quantity (kg)">
+
+      <button onclick="addEntry()" class="w-full bg-green-500 hover:bg-green-600 p-2 rounded-xl font-bold">
+        ➕ Add Entry (Auto Calculate)
+      </button>
+    </div>
+
+    <!-- TOTALS -->
+    <div class="bg-gray-800 p-4 mt-4 rounded-2xl">
+      <h2 class="text-lg font-bold">📊 Totals</h2>
+      <p>💰 Total Spent: ₹<span id="totalSpent">0</span></p>
+      <p>📈 Total Profit: ₹<span id="totalProfit">0</span></p>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="bg-gray-800 p-4 mt-4 rounded-2xl">
+      <h2 class="text-lg font-bold mb-2">🧾 Entries</h2>
+      <div id="history" class="text-sm space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE (MANDI PRICES) -->
+  <div class="bg-gray-800 p-4 rounded-2xl">
+    <h2 class="text-xl font-bold mb-3">📊 Mandi Bulk Prices (Approx)</h2>
+    <ul class="space-y-2 text-sm">
+      <li>🥔 Potato: ₹20–₹30/kg</li>
+      <li>🧅 Onion: ₹25–₹40/kg</li>
+      <li>🍅 Tomato: ₹15–₹35/kg</li>
+      <li>🌶️ Green Chilli: ₹40–₹80/kg</li>
+      <li>🌿 Coriander: ₹80–₹150/kg</li>
+      <li>🍋 Lemon: ₹60–₹120/kg</li>
+      <li>🧄 Garlic: ₹120–₹200/kg</li>
+    </ul>
+
+    <p class="text-xs mt-4 text-gray-400">
+      ⚠️ Prices change daily. Check your local mandi for exact rates.
+    </p>
+  </div>
+
+</div>
+
+<script>
+let totalSpent = 0;
+let totalProfit = 0;
+
+function addEntry() {
+  let name = document.getElementById('name').value;
+  let buy = parseFloat(document.getElementById('buy').value);
+  let sell = parseFloat(document.getElementById('sell').value);
+  let qty = parseFloat(document.getElementById('qty').value);
+
+  if (!name || isNaN(buy) || isNaN(sell) || isNaN(qty)) {
+    alert("⚠️ Please fill all fields");
+    return;
+  }
+
+  // AUTO CALCULATION
+  let spent = buy * qty;
+  let revenue = sell * qty;
+  let profit = revenue - spent;
+
+  totalSpent += spent;
+  totalProfit += profit;
+
+  document.getElementById('totalSpent').innerText = totalSpent;
+  document.getElementById('totalProfit').innerText = totalProfit;
+
+  // CREATE ENTRY
+  let entry = document.createElement('div');
+  entry.className = "bg-gray-700 p-2 rounded flex justify-between items-center";
+
+  entry.innerHTML = `
+    <div>
+      📦 <b>${name}</b> (${qty}kg)<br>
+      💸 ₹${buy}/kg → ₹${sell}/kg<br>
+      💰 Spent: ₹${spent} | 📈 Profit: ₹${profit}
+    </div>
+    <button onclick="removeEntry(this, ${spent}, ${profit})"
+      class="bg-red-500 px-2 py-1 rounded text-xs">
+      ❌
+    </button>
+  `;
+
+  document.getElementById('history').appendChild(entry);
+
+  // CLEAR INPUTS
+  document.getElementById('name').value = "";
+  document.getElementById('buy').value = "";
+  document.getElementById('sell').value = "";
+  document.getElementById('qty').value = "";
+}
+
+// DELETE ENTRY
+function removeEntry(btn, spent, profit) {
+  btn.parentElement.remove();
+
+  totalSpent -= spent;
+  totalProfit -= profit;
+
+  document.getElementById('totalSpent').innerText = totalSpent;
+  document.getElementById('totalProfit').innerText = totalProfit;
+}
+</script>
+
+</body>
+</html>
